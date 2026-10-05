@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'stage6_scroll_test.dart';
+import 'stage14_feedback_test.dart';
+import 'course_explorer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Learning Dashboard',
       theme: ThemeData(colorSchemeSeed: Colors.indigo),
-      home: const Stage6ScrollTest(),
+      home: const ExplorerShell(),
     );
   }
 }
