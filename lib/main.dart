@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'stage3_breakpoint_test.dart';
+import 'stage4_flex_wrap_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Learning Dashboard',
       theme: ThemeData(colorSchemeSeed: Colors.indigo),
-      home: const Stage3BreakpointTest(),
+      home: const Stage4FlexWrapTest(),
     );
   }
 }
