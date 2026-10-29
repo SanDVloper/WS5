@@ -18,6 +18,7 @@ class CourseDetailScreen extends StatelessWidget {
         ? course
         : (provider.findById(course.id!) ?? course);
     final isFavorite = provider.isFavorite(current.code);
+    final canMutate = current.id != null && !provider.isSaving;
 
     return Scaffold(
       appBar: AppBar(
@@ -91,15 +92,31 @@ class CourseDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.tonalIcon(
-                onPressed: current.id == null || provider.isSaving
-                    ? null
-                    : () => _openEdit(context, current),
-                icon: const Icon(Icons.edit),
-                label: const Text('Edit Course'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: canMutate
+                        ? () => _openEdit(context, current)
+                        : null,
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    onPressed: canMutate
+                        ? () => _confirmDelete(context, current)
+                        : null,
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Hapus'),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             const Divider(),
@@ -121,6 +138,52 @@ class CourseDetailScreen extends StatelessWidget {
         builder: (_) => CourseFormScreen(course: course),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, Course course) async {
+    final id = course.id;
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Course tidak memiliki id')),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hapus Course?'),
+        content: Text('Course "${course.title}" akan dihapus permanen.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Batal'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+
+    final provider = context.read<CourseProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final error = await provider.deleteCourse(id);
+
+    if (!context.mounted) return;
+    if (error != null) {
+      messenger.showSnackBar(SnackBar(content: Text(error)));
+      return;
+    }
+    messenger.showSnackBar(
+      const SnackBar(content: Text('Course berhasil dihapus')),
+    );
+    navigator.pop();
   }
 }
 
