@@ -1,0 +1,1 @@
+const String apiBaseUrl = 'https://course-api-pearl.vercel.app';
