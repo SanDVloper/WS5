@@ -10,6 +10,7 @@ import 'repositories/course_repository.dart';
 import 'screens/explorer_shell.dart';
 import 'services/course_api_service.dart';
 import 'services/course_data_source.dart';
+import 'services/course_supabase_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,10 @@ Future<void> main() async {
     );
   }
 
-  final CourseDataSource dataSource = CourseApiService(apiBaseUrl);
+  final CourseDataSource dataSource = isSupabaseConfigured
+      ? CourseSupabaseService()
+      : CourseApiService(apiBaseUrl);
+  debugPrint('DataSource: ${dataSource.runtimeType}');
   final repository = CourseRepository(dataSource);
 
   runApp(
