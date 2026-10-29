@@ -52,7 +52,6 @@ class CourseDetailScreen extends StatelessWidget {
                     _InfoRow(label: 'Kode', value: course.code),
                     _InfoRow(label: 'SKS', value: '${course.credits}'),
                     _InfoRow(label: 'Status', value: course.statusLabel),
-                    _InfoRow(label: 'Dosen', value: course.lecturer),
                     const SizedBox(height: 12),
                     Chip(
                       avatar: Icon(
