@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/app_constants.dart';
 import '../providers/course_provider.dart';
+import 'course_form_screen.dart';
 import 'courses_screen.dart';
 import 'favorites_screen.dart';
 import 'home_screen.dart';
@@ -30,13 +31,20 @@ class _ExplorerShellState extends State<ExplorerShell> {
       onOpenCourses: () => _select(1),
       onOpenFavorites: () => _select(2),
     ),
-    const CoursesScreen(),
+    CoursesScreen(onCreate: _openCreateCourse),
     const FavoritesScreen(),
     const ProfileScreen(),
   ];
 
   void _select(int index) {
     setState(() => _selectedIndex = index);
+  }
+
+  void _openCreateCourse() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CourseFormScreen()),
+    );
   }
 
   @override
@@ -107,6 +115,13 @@ class _ExplorerShellState extends State<ExplorerShell> {
                 ),
               ],
             ),
+      floatingActionButton: _selectedIndex == 1
+          ? FloatingActionButton.extended(
+              onPressed: _openCreateCourse,
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah Course'),
+            )
+          : null,
       bottomNavigationBar: isCompact
           ? NavigationBar(
               selectedIndex: _selectedIndex,

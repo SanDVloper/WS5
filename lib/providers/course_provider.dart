@@ -10,11 +10,13 @@ class CourseProvider extends ChangeNotifier {
 
   List<Course> _courses = [];
   bool _isLoading = false;
+  bool _isSaving = false;
   String? _error;
   final Set<String> _favorites = {};
 
   List<Course> get courses => List.unmodifiable(_courses);
   bool get isLoading => _isLoading;
+  bool get isSaving => _isSaving;
   String? get error => _error;
   int get favoriteCount => _favorites.length;
 
@@ -36,6 +38,23 @@ class CourseProvider extends ChangeNotifier {
       _courses = [];
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> createCourse(Course course) async {
+    if (_isSaving) return 'Permintaan lain sedang diproses.';
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      await repository.createCourse(course);
+      await loadCourses();
+      return null;
+    } catch (e) {
+      return 'Gagal menambah course: $e';
+    } finally {
+      _isSaving = false;
       notifyListeners();
     }
   }

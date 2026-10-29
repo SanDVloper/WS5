@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/error_view.dart';
+
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
+import '../widgets/error_view.dart';
 import 'course_detail_screen.dart';
 
 class CoursesScreen extends StatefulWidget {
-  const CoursesScreen({super.key});
+  final VoidCallback onCreate;
+
+  const CoursesScreen({super.key, required this.onCreate});
 
   @override
   State<CoursesScreen> createState() => _CoursesScreenState();
@@ -74,14 +77,19 @@ class _CoursesScreenState extends State<CoursesScreen> {
         if (provider.isLoading && courses.isEmpty)
           const Expanded(child: Center(child: CircularProgressIndicator()))
         else if (provider.error != null)
-      Expanded(
-        child: ErrorView(
-          message: provider.error!,
-          onRetry: () => context.read<CourseProvider>().loadCourses(),
-        ),
-      )
+          Expanded(
+            child: ErrorView(
+              message: provider.error!,
+              onRetry: () => context.read<CourseProvider>().loadCourses(),
+            ),
+          )
         else if (courses.isEmpty)
-          Expanded(child: _EmptyState(query: _query))
+          Expanded(
+            child: _EmptyState(
+              query: _query,
+              onCreate: widget.onCreate,
+            ),
+          )
         else
           Expanded(
             child: LayoutBuilder(
@@ -146,11 +154,14 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
 class _EmptyState extends StatelessWidget {
   final String query;
+  final VoidCallback onCreate;
 
-  const _EmptyState({required this.query});
+  const _EmptyState({required this.query, required this.onCreate});
 
   @override
   Widget build(BuildContext context) {
+    final isSearching = query.isNotEmpty;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -164,15 +175,22 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              query.isEmpty
-                  ? 'Belum ada data course'
-                  : 'Tidak ada course dengan kata kunci "$query"',
+              isSearching
+                  ? 'Tidak ada course dengan kata kunci "$query"'
+                  : 'Belum ada data course',
               textAlign: TextAlign.center,
             ),
+            if (!isSearching) ...[
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: onCreate,
+                icon: const Icon(Icons.add),
+                label: const Text('Tambah Course'),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 }
-
