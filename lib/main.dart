@@ -7,9 +7,12 @@ import 'providers/course_provider.dart';
 import 'repositories/course_repository.dart';
 import 'screens/explorer_shell.dart';
 import 'services/course_api_service.dart';
+import 'services/course_data_source.dart';
 
 void main() {
-  final repository = CourseRepository(CourseApiService(apiBaseUrl));
+  final CourseDataSource dataSource = CourseApiService(apiBaseUrl);
+  final repository = CourseRepository(dataSource);
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(repository)..loadCourses(),
