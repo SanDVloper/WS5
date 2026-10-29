@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../widgets/error_view.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
@@ -18,24 +18,10 @@ class FavoritesScreen extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (provider.error != null && provider.courses.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, size: 48),
-              const SizedBox(height: 8),
-              Text(provider.error!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton.tonal(
-                onPressed: () => context.read<CourseProvider>().loadCourses(),
-                child: const Text('Coba lagi'),
-              ),
-            ],
-          ),
-        ),
+    if (provider.error != null) {
+      return ErrorView(
+        message: provider.error!,
+        onRetry: () => context.read<CourseProvider>().loadCourses(),
       );
     }
 

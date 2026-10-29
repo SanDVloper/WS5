@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../widgets/error_view.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
@@ -74,12 +74,12 @@ class _CoursesScreenState extends State<CoursesScreen> {
         if (provider.isLoading && courses.isEmpty)
           const Expanded(child: Center(child: CircularProgressIndicator()))
         else if (provider.error != null)
-          Expanded(
-            child: _ErrorState(
-              message: provider.error!,
-              onRetry: () => context.read<CourseProvider>().loadCourses(),
-            ),
-          )
+      Expanded(
+        child: ErrorView(
+          message: provider.error!,
+          onRetry: () => context.read<CourseProvider>().loadCourses(),
+        ),
+      )
         else if (courses.isEmpty)
           Expanded(child: _EmptyState(query: _query))
         else
@@ -176,31 +176,3 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 48),
-            const SizedBox(height: 8),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            FilledButton.tonal(
-              onPressed: onRetry,
-              child: const Text('Coba lagi'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
