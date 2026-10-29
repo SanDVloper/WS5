@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/app_constants.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
+import 'course_form_screen.dart';
 
 class CourseDetailScreen extends StatelessWidget {
   final Course course;
@@ -12,17 +13,21 @@ class CourseDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFavorite = context.watch<CourseProvider>().isFavorite(course.code);
+    final provider = context.watch<CourseProvider>();
+    final current = course.id == null
+        ? course
+        : (provider.findById(course.id!) ?? course);
+    final isFavorite = provider.isFavorite(current.code);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(course.title),
+        title: Text(current.title),
         actions: [
           IconButton(
             tooltip: isFavorite ? 'Hapus dari favorit' : 'Tandai favorit',
             onPressed: () => context
                 .read<CourseProvider>()
-                .toggleFavorite(course.code),
+                .toggleFavorite(current.code),
             icon: Icon(
               isFavorite ? Icons.favorite : Icons.favorite_border,
               color: isFavorite ? Colors.red : null,
@@ -42,16 +47,17 @@ class CourseDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      course.title,
+                      current.title,
                       style: Theme.of(context)
                           .textTheme
                           .headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 12),
-                    _InfoRow(label: 'Kode', value: course.code),
-                    _InfoRow(label: 'SKS', value: '${course.credits}'),
-                    _InfoRow(label: 'Status', value: course.statusLabel),
+                    _InfoRow(label: 'ID', value: current.id?.toString() ?? '-'),
+                    _InfoRow(label: 'Kode', value: current.code),
+                    _InfoRow(label: 'SKS', value: '${current.credits}'),
+                    _InfoRow(label: 'Status', value: current.statusLabel),
                     const SizedBox(height: 12),
                     Chip(
                       avatar: Icon(
@@ -75,13 +81,24 @@ class CourseDetailScreen extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: () => context
                     .read<CourseProvider>()
-                    .toggleFavorite(course.code),
+                    .toggleFavorite(current.code),
                 icon: Icon(
                   isFavorite ? Icons.favorite : Icons.favorite_border,
                 ),
                 label: Text(
                   isFavorite ? 'Hapus dari Favorit' : 'Tandai Favorit',
                 ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: current.id == null || provider.isSaving
+                    ? null
+                    : () => _openEdit(context, current),
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Course'),
               ),
             ),
             const SizedBox(height: 24),
@@ -93,6 +110,15 @@ class CourseDetailScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _openEdit(BuildContext context, Course course) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CourseFormScreen(course: course),
       ),
     );
   }
@@ -112,7 +138,7 @@ class _InfoRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 70,
+            width: 80,
             child: Text(
               label,
               style: TextStyle(

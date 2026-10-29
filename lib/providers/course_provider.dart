@@ -26,6 +26,15 @@ class CourseProvider extends ChangeNotifier {
         .toList(growable: false);
   }
 
+  Course? findById(int id) {
+    for (final course in _courses) {
+      if (course.id == id) {
+        return course;
+      }
+    }
+    return null;
+  }
+
   Future<void> loadCourses() async {
     _isLoading = true;
     _error = null;
@@ -53,6 +62,23 @@ class CourseProvider extends ChangeNotifier {
       return null;
     } catch (e) {
       return 'Gagal menambah course: $e';
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
+  }
+
+  Future<String?> updateCourse(int id, Course course) async {
+    if (_isSaving) return 'Permintaan lain sedang diproses.';
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      await repository.updateCourse(id, course);
+      await loadCourses();
+      return null;
+    } catch (e) {
+      return 'Gagal memperbarui course: $e';
     } finally {
       _isSaving = false;
       notifyListeners();
